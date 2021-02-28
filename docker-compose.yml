@@ -1,0 +1,26 @@
+version: "3"
+
+services: 
+    db:
+        image: postgres:12
+        container_name: dbtest_db
+        environment:
+            - POSTGRES_HOST_AUTH_METHOD=trust
+        volumes:
+            - dbtest-db:/var/lib/postgresql/data
+    server:
+        container_name: dbtest_server
+        build:
+            context: .
+            dockerfile: ./server/docker/dev/python/Dockerfile
+        environment:
+            - DJANGO_SETTINGS_MODULE:dbtest.settings.dev
+        command: python manage.py runserver 0.0.0.0:8000
+        volumes:
+            - ./:/app
+        ports:
+            - "8000:8000"
+        depends_on: 
+            - db
+volumes: 
+    dbtest-db:

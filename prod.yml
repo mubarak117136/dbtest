@@ -1,0 +1,26 @@
+version: "3"
+
+services: 
+    db:
+        image: postgres:12
+        container_name: dbtest_db
+        environment:
+            - POSTGRES_HOST_AUTH_METHOD=trust
+        volumes:
+            - dbtest-db:/var/lib/postgresql/data
+    server:
+        container_name: dbtest_server
+        build:
+            context: .
+            dockerfile: ./server/docker/prod/python/Dockerfile
+        environment:
+            - DJANGO_SETTINGS_MODULE:dbtest.settings.production
+        command: gunicorn -w 3 dbtest.wsgi -b 0.0.0.0:8000
+        volumes:
+            - ./:/app
+            - ./server/static:/app/server/static
+            - ./server/media:/app/server/media
+        ports:
+            - "8000:8000"
+volumes: 
+    dbtest-db:
